@@ -382,7 +382,7 @@ function game.uniqueNoteOffsetsBetweenSelected(includeLN)
     local selectedNoteOffsets = game.uniqueSelectedNoteOffsets()
     if (not selectedNoteOffsets) then
         toggleablePrint("e!",
-            "Warning: There are not enough notes in the current selection (within this timing group) to perform the action.")
+            "Not enough notes in the current selection.")
         return {}
     end
     local startOffset = selectedNoteOffsets[1]
@@ -390,7 +390,7 @@ function game.uniqueNoteOffsetsBetweenSelected(includeLN)
     local offsets = game.uniqueNoteOffsetsBetween(startOffset, endOffset, includeLN)
     if (#offsets < 2) then
         toggleablePrint("e!",
-            "Warning: There are not enough notes in the current selection (within this timing group) to perform the action.")
+            "Not enough notes in the current selection..")
         return {}
     end
     return offsets
@@ -414,7 +414,7 @@ function game.uniqueNotesBetweenSelected()
     local selectedNoteOffsets = game.uniqueSelectedNoteOffsets()
     if (not selectedNoteOffsets) then
         toggleablePrint("e!",
-            "Warning: There are not enough notes in the current selection (within this timing group) to perform the action.")
+            "Not enough notes in the current selection.")
         return {}
     end
     local startOffset = selectedNoteOffsets[1]
@@ -422,7 +422,7 @@ function game.uniqueNotesBetweenSelected()
     local hos = game.getNotesBetweenOffsets(startOffset, endOffset)
     if (#hos < 2) then
         toggleablePrint("e!",
-            "Warning: There are not enough notes in the current selection (within this timing group) to perform the action.")
+            "Not enough notes in the current selection.")
         return {}
     end
     return hos
@@ -2324,7 +2324,7 @@ function automateCopySVs(settingVars)
     local endOffset = offsets[#offsets]
     local svs = game.getSVsBetweenOffsets(startOffset, endOffset)
     if (not truthy(svs)) then
-        toggleablePrint("w!", "No SVs found within the copiable region.")
+        toggleablePrint("w!", "No SVs found.")
         return
     end
     local firstSVTime = svs[1].StartTime
@@ -2734,7 +2734,7 @@ function svVibrato(menuVars, heightFn)
         local roundingFactor = math.max(menuVars.sides, 2)
         local teleportCount = math.floor((nextVibro - startVibro) / 1000 * fps / roundingFactor) * roundingFactor
         if (teleportCount < 2) then
-            print("e!", "Some notes are too close together to place vibrato. Check for notes that are 1ms apart.")
+            print("e!", "Some notes are too close together. Check for notes 1ms apart.")
             return
         end
         if (menuVars.sides == 1) then
@@ -2862,7 +2862,7 @@ function changeGroups(menuVars)
     if (state.SelectedScrollGroupId == menuVars.designatedTimingGroup) then
         print("w!",
             table.concat({ menuVars.clone and "Cloning" or "Moving",
-                " from one timing group to the same timing group will do nothing." }))
+                " to the same timing group." }))
         return
     end
     local offsets = game.uniqueSelectedNoteOffsets()
@@ -2906,12 +2906,12 @@ function changeGroups(menuVars)
     actions.PerformBatch(actionList)
     if (willChangeSVs) then
         toggleablePrint("s!",
-            "Successfully moved " .. #svsToRemove ..
+            "Moved " .. #svsToRemove ..
             pluralize(" SV", #svsToRemove) .. ' to "' .. menuVars.designatedTimingGroup .. '".')
     end
     if (willChangeSSFs) then
         toggleablePrint("s!",
-            "Successfully moved " .. #ssfsToRemove ..
+            "Moved " .. #ssfsToRemove ..
             pluralize(" SSF", #ssfsToRemove) .. ' to "' .. menuVars.designatedTimingGroup .. '".')
     end
 end
@@ -3045,7 +3045,7 @@ function convertSVSSF(menuVars)
         table.insert(editorActions, createEA(action_type.AddScrollVelocityBatch, createTable))
     end
     actions.PerformBatch(editorActions)
-    toggleablePrint("s!", "Successfully converted.")
+    toggleablePrint("s!", "Converted.")
 end
 function swapSVSSF(menuVars)
     local offsets = game.uniqueSelectedNoteOffsets()
@@ -3067,7 +3067,7 @@ function swapSVSSF(menuVars)
         createEA(action_type.RemoveScrollSpeedFactorBatch, ssfsToRemove),
         createEA(action_type.AddScrollSpeedFactorBatch, ssfsToAdd),
     })
-    toggleablePrint("s!", "Successfully swapped.")
+    toggleablePrint("s!", "Swapped.")
 end
 function copyItems(menuVars)
     clearCopiedItems(menuVars)
@@ -3147,7 +3147,7 @@ function copyItems(menuVars)
             #menuVars.copied.lines[menuVars.curSlot] .. pluralize(" Line.", #menuVars.copied.lines[menuVars.curSlot], -2))
     end
     if (not printed) then
-        print("w!", "There were no items to copy.")
+        print("w!", "No items to copy.")
     end
 end
 function clearCopiedItems(menuVars)
@@ -3465,7 +3465,7 @@ function layerSnaps()
         if (table.contains(layerNames, newLayerName)) then
             if (table.contains(originalLayerNames, newLayerName)) then
                 print("e!",
-                    "Existing plumoguSV snap layers have been detected. Please remove them before trying to layer snaps again.")
+                    "Existing snap layers with same name.")
                 return
             end
             table.insert(layerDict[newLayerName].hos, ho)
@@ -3532,7 +3532,7 @@ function collapseSnaps()
     end
     actions.PerformBatch(moveNoteActions)
     if (not truthy(#normalTpsToAdd + #snapTpsToAdd + #tpsToRemove)) then
-        print("w!", "There were no generated layers you nonce")
+        print("w!", "No generated layers")
         return
     end
     actions.PerformBatch({
@@ -3549,7 +3549,7 @@ function clearSnappedLayers()
         end
     end
     if (not truthy(removeLayerActions)) then
-        print("w!", "There were no generated layers you nonce")
+        print("w!", "No generated layers")
         return
     end
     actions.PerformBatch(removeLayerActions)
@@ -3635,7 +3635,7 @@ function fixFlippedLNEnds()
     if endOffset == 0 then endOffset = map.HitObjects[#map.HitObjects].StartTime end
     getRemovableSVs(svsToRemove, svTimeIsAdded, startOffset, endOffset)
     removeAndAddSVs(svsToRemove, svsToAdd)
-    local type = truthy(fixedLNEndsCount) and "s!" or "w!"
+    local type = truthy(fixedLNEndsCount) and "e!" or "s!"
     print(type, "Fixed " .. fixedLNEndsCount .. pluralize(" flipped LN end.", fixedLNEndsCount, -2))
 end
 function mergeSVs()
@@ -3649,7 +3649,7 @@ function mergeSVs()
         end
     end
     if (truthy(svsToRemove)) then actions.RemoveScrollVelocityBatch(svsToRemove) end
-    local type = truthy(svsToRemove) and "s!" or "w!"
+    local type = truthy(svsToRemove) and "e!" or "s!"
     print(type, "Removed " .. #svsToRemove .. pluralize(" SV.", #svsToRemove, -2))
 end
 function mergeSSFs()
@@ -3663,7 +3663,7 @@ function mergeSSFs()
         end
     end
     if (truthy(ssfsToRemove)) then actions.Perform(createEA(action_type.RemoveScrollSpeedFactorBatch, ssfsToRemove)) end
-    local type = truthy(ssfsToRemove) and "s!" or "w!"
+    local type = truthy(ssfsToRemove) and "e!" or "s!"
     print(type, "Removed " .. #ssfsToRemove .. pluralize(" SSF.", #ssfsToRemove, -2))
 end
 function mergeNotes()
@@ -3681,7 +3681,7 @@ function mergeNotes()
         end
     end
     if (truthy(notesToRemove)) then actions.RemoveHitObjectBatch(notesToRemove) end
-    local type = truthy(notesToRemove) and "s!" or "w!"
+    local type = truthy(notesToRemove) and "e!" or "s!"
     print(type, "Removed " .. #notesToRemove .. pluralize(" note.", #notesToRemove, -2))
 end
 function removeUnnecessarySVs()
@@ -3701,8 +3701,8 @@ function removeUnnecessarySVs()
         svSum = svSum + #svsToRemove
     end
     if (truthy(svSum)) then actions.PerformBatch(editorActions) end
-    local type = truthy(svSum) and "s!" or "w!"
-    print(type, "Removed " .. svSum .. pluralize(" SV.", svSum, -2))
+    local type = truthy(svSum) and "e!" or "s!"
+	print(type, "Removed " .. svSum .. pluralize(" SV.", svSum, -2))
     state.SelectedScrollGroupId = ogTG
 end
 function removeAllHitSounds()
@@ -3715,11 +3715,9 @@ function removeAllHitSounds()
             objs[#objs + 1] = ho.StartTime .. "|" .. ho.Lane
         end
     end
-    local type = truthy(hitsoundActions) and "s!" or "w!"
+    local type = truthy(hitsoundActions) and "e!" or "s!"
     print(type,
-        "Removed " ..
-        #hitsoundActions .. pluralize(" hitsound.", #hitsoundActions, -2))
-    print("w!", "Note that the Quaver hitsound system is funky and some hitsounds exist that aren't audible.")
+        "Removed " .. #hitsoundActions .. pluralize(" hitsound.", #hitsoundActions, -2))
     imgui.SetClipboardText(table.concat(objs, ","))
     actions.PerformBatch(hitsoundActions)
 end
@@ -3977,12 +3975,12 @@ function changeNoteLockMode()
     end
     if (mode == 1) then
         print("e",
-            "Notes have been fully locked. To change the lock mode, press " ..
+            "Notes have been locked." ..
             globalVars.hotkeyList[hotkeys_enum.toggle_note_lock] .. ".")
     end
     if (mode == 2) then
         print("w",
-            "Notes can no longer be placed, only moved. To change the lock mode, press " ..
+            "Notes can not be placed. " ..
             globalVars.hotkeyList[hotkeys_enum.toggle_note_lock] .. ".")
     end
     if (mode == 3) then
@@ -4067,11 +4065,11 @@ function toggleUseEndOffsets()
     globalVars.useEndTimeOffsets = not globalVars.useEndTimeOffsets
     if (globalVars.useEndTimeOffsets) then
         print("s",
-            "LN ends are now considered as their own offsets. To change this, press " ..
+            "LN ends are now their own offsets. " ..
             globalVars.hotkeyList[hotkeys_enum.toggle_end_offset] .. ".")
     else
         print("e",
-            "LN ends are now no longer considered as their own offsets. To change this, press " ..
+            "LN ends are now their own offsets. " ..
             globalVars.hotkeyList[hotkeys_enum.toggle_end_offset] .. ".")
     end
     write(globalVars)
@@ -4088,15 +4086,11 @@ function getMapStats()
         ssfSum = ssfSum + #map.ScrollSpeedFactors
     end
     print("s!",
-        "That's an average of " ..
         math.round(svSum * 1000 / map.TrackLength, 2) ..
-        table.concat({" SVs per second, or ", math.round(ssfSum * 1000 / map.TrackLength, 2), " SSFs per second."}))
-    print("s!", table.concat({"This map also contains ", #map.TimingPoints, pluralize(" timing point.", #map.TimingPoints, -2)}))
+        table.concat({" SVs per second, ", math.round(ssfSum * 1000 / map.TrackLength, 2), " SSFs per second."}))
+    print("s!", table.concat({"", #map.TimingPoints, pluralize(" timing point.", #map.TimingPoints, -2)}))
     print("s!",
-        "This map has " ..
-        svSum .. table.concat({" SVs and ", ssfSum, " SSFs across "}) .. #tgList .. pluralize(" timing group.", #tgList, -2))
-    print("w!",
-        "Remember that the quality of map has no correlation with the object count! Try to be optimal in your object usage.")
+        svSum .. table.concat({" SVs, ", ssfSum, " SSFs across "}) .. #tgList .. pluralize(" timing group.", #tgList, -2))
     state.SelectedScrollGroupId = currentTG
 end
 function selectAlternating(menuVars)
@@ -7364,16 +7358,16 @@ function createSVTab()
 end
 function chooseCreateTool()
     local tooltipList = {
-        "Place standard shapes.",
-        "Non-standard effects.",
+        "",
+        "Miscellaneous effects.",
         "Still shapes keep notes normal distance/spacing apart.",
         "Make notes vibrate or appear to duplicate."
     }
     imgui.AlignTextToFramePadding()
     imgui.Text("  Type:  ")
     KeepSameLine()
-    globalVars.placeTypeIndex = Combo("##placeType", CREATE_TYPES, globalVars.placeTypeIndex, nil, nil, tooltipList)
-    HoverToolTip(tooltipList[globalVars.placeTypeIndex])
+    globalVars.placeTypeIndex = Combo("##placeType", CREATE_TYPES, globalVars.placeTypeIndex, nil, nil)
+    if globalVars.placeTypeIndex == 1 then else HoverToolTip(tooltipList[globalVars.placeTypeIndex]) end
 end
 function renderPresetMenu(menuLabel, menuVars, settingVars)
     local newPresetName = state.GetValue("newPresetName", "")
@@ -7417,7 +7411,7 @@ function renderPresetMenu(menuLabel, menuVars, settingVars)
         local parsedTable = table.parse(importCustomPreset)
         if (table.includes(table.property(globalVars.presets, "name"), parsedTable.name)) then
             print("e!",
-                "A preset with this name already exists. Please remove it or change the name in the import string.")
+                "A preset with this name already exists.")
         else
             table.insert(globalVars.presets, parsedTable)
             importCustomPreset = ""
@@ -7449,7 +7443,7 @@ function renderPresetMenu(menuLabel, menuVars, settingVars)
         end
         if (imgui.IsItemClicked("Right")) then
             imgui.SetClipboardText(table.stringify(preset))
-            print("i!", "Exported preset to your clipboard.")
+            print("i!", "Exported to your clipboard.")
         end
         HoverToolTip("Left-click to select this preset. Right-click to copy this preset to your clipboard.")
         KeepSameLine()
@@ -8432,26 +8426,25 @@ function lintMapMenu()
     AddSeparator()
     simpleActionMenu("Fix flipped LN ends", 0, fixFlippedLNEnds, nil, true, true)
     HoverToolTip(
-        "If there is a negative SV at an LN end, the LN end will be flipped. This is noticable especially for arrow skins and is jarring. This tool will fix that.")
+        "Will fix any and all LN ends that are visually upside-down. Flipping them upright")
     simpleActionMenu("Merge duplicate SVs", 0, mergeSVs, nil, false, true)
     HoverToolTip(
-        "(DOESN'T VISUALLY AFFECT MAP) removes SVs that are on the same time as others. Note that Quaver always renders the second SV in the internal SV list, and this tool will only ever remove the first duplicate SV, so nothing in the map should change. If something does change, please message @kvrosakura on Discord with the map.")
+        "Removes SVs that are on the same time as others. This tool will only ever remove the first duplicate SV.")
     simpleActionMenu("Merge duplicate SSFs", 0, mergeSSFs, nil, true, true)
     HoverToolTip(
-        "(DOESN'T VISUALLY AFFECT MAP) removes SSFs that are on the same time as others. Note that Quaver always renders the second SSF in the internal SSF list, and this tool will only ever remove the first duplicate SSF, so nothing in the map should change. If something does change, please message @kvrosakura on Discord with the map.")
+        "Removes SSFs that are on the same time as others. This tool can mess up your SSFs, it will look at timing and remove the first of any SSVs that share a timing with another.")
     simpleActionMenu("Remove unnecessary SVs", 0, removeUnnecessarySVs, nil, false, true)
     HoverToolTip(
-        "(DOESN'T VISUALLY AFFECT MAP) If two consecutive SVs have the same multiplier, removes the second SV.")
+        "If two consecutive SVs have the same multiplier, it will remove all but the first.")
     simpleActionMenu("Remove duplicate notes", 0, mergeNotes, nil, true, true)
-    HoverToolTip("Removes stacked notes.")
+    HoverToolTip("If two consecutive notes have the same timing, it will remove all but the first.")
     simpleActionMenu("Remove all hitsounds", 0, removeAllHitSounds, nil, true, true)
-    HoverToolTip("Self-explanatory.")
 end
 EDIT_SV_TOOLS = {
     "Add Teleport",
     "Change Groups",
-    "Complete Duplicate",
-    "Convert SV <-> SSF",
+    "Duplicate",
+    "Convert SV/SSF",
     "Copy & Paste",
     "Direct SV",
     "Displace Note",
@@ -8475,8 +8468,8 @@ function editSVTab()
     local toolName = EDIT_SV_TOOLS[globalVars.editToolIndex]
     if toolName == "Add Teleport" then addTeleportMenu() end
     if toolName == "Change Groups" then changeGroupsMenu() end
-    if toolName == "Complete Duplicate" then completeDuplicateMenu() end
-    if toolName == "Convert SV <-> SSF" then convertSVSSFMenu() end
+    if toolName == "Duplicate" then completeDuplicateMenu() end
+    if toolName == "Convert SV/SSF" then convertSVSSFMenu() end
     if toolName == "Copy & Paste" then copyNPasteMenu() end
     if toolName == "Direct SV" then directSVMenu() end
     if toolName == "Displace Note" then displaceNoteMenu() end
@@ -8497,28 +8490,28 @@ function chooseEditTool()
     local tooltipList = {
         "Add a large teleport SV to move far away.",
         "Moves SVs and SSFs to a designated timing group.",
+		"Completely copy a section and paste it anywhere.",
         "Convert multipliers between SV/SSF.",
-        "Completely copy a section of your map and put it somewhere else.",
-        "Copy SVs and SSFs and paste them somewhere else.",
-        "Directly update SVs within your selection.",
-        "Move where notes are hit on the screen.",
+        "Copy SVs and SSFs and paste them anywhere.",
+        "Directly edit SVs within your selection.",
+        "Moves where notes are hit on the screen.",
         "Temporarily displace the playfield view.",
         "Dynamically scale SVs across notes.",
-        "Flash notes on and off the screen.",
+        "Flicker notes on and off the screen.",
         "Transfer snap colors into layers, to be loaded later.",
-        "Polish your map with these set of tools.",
+        "Polish your map with these set of helpful tools.",
         "Get stats about SVs in a section.",
         "Reverse the scroll direction using SVs.",
         "Scale SV values by adding teleport SVs.",
         "Scale SV values by multiplying.",
-        "Split notes into different timing groups for finer control.",
+        "Split notes into different timing groups.",
         "Swap positions of notes using SVs.",
-        "Adds a constant value to SVs in a range.",
+        "Shift SVs by a set amount.",
     }
     imgui.AlignTextToFramePadding()
     imgui.Text("  Current Tool:")
     KeepSameLine()
-    globalVars.editToolIndex = Combo("##edittool", EDIT_SV_TOOLS, globalVars.editToolIndex, nil, nil, tooltipList)
+    globalVars.editToolIndex = Combo("##edittool", EDIT_SV_TOOLS, globalVars.editToolIndex, nil, nil)
     HoverToolTip(tooltipList[globalVars.editToolIndex])
 end
 function measureMenu()
@@ -8546,14 +8539,14 @@ function displayMeasuredStatsRounded(menuVars)
     imgui.Text("True average SV:")
     imgui.NextColumn()
     imgui.Text(menuVars.roundedNSVDistance .. " msx")
-    HelpMarker("The normal distance between the start and the end, ignoring SVs")
+    HelpMarker("The distance between the start and the end, ignoring SVs")
     imgui.Text(menuVars.roundedSVDistance .. " msx")
-    HelpMarker("The actual distance between the start and the end, calculated with SVs")
+    HelpMarker("The distance between the start and the end, with SVs")
     imgui.Text(menuVars.roundedAvgSV .. "x")
     imgui.Text(menuVars.roundedStartDisplacement .. " msx")
-    HelpMarker("Calculated using plumoguSV displacement metrics, so might not always work")
+    HelpMarker("Might not always work")
     imgui.Text(menuVars.roundedEndDisplacement .. " msx")
-    HelpMarker("Calculated using plumoguSV displacement metrics, so might not always work")
+    HelpMarker("Might not always work")
     imgui.Text(menuVars.roundedAvgSVDisplaceless .. "x")
     HelpMarker("Average SV calculated ignoring the start and end displacement")
     imgui.Columns(1)
@@ -8610,15 +8603,15 @@ function splitMenu()
 end
 function splitSettingsMenu(menuVars)
     menuVars.modeIndex = Combo("Split Mode", SPLIT_MODES, menuVars.modeIndex, nil, nil, {
-        "Split notes via column; either with individual TGs or a certain transformation of such columns.",
-        "Split notes via time; each time has its own TG.",
-        "Split all notes into their own TG regardless of any properties they have."
+        "Split notes via column; each column has its own TG.",
+        "Split notes via timing; each time has its own TG.",
+        "Split all notes into their own TG."
     })
     BasicCheckbox(menuVars, "cloneSVs", "Clone SVs?",
-        "If enabled, each note will clone the SVs around it in the current timing group.")
+        "Enabling: each note will clone the SVs around it in the current timing group.")
     if (menuVars.cloneSVs) then
         BasicInputInt(menuVars, "cloneRadius", "Clone Radius", { 0, 69420 },
-            "SVs that are further than THIS amount of ms away will be ignored.")
+            "SVs that are further than [ ]ms will be ignored.")
     end
 end
 function swapNotesMenu()
@@ -8636,46 +8629,43 @@ function verticalShiftSettingsMenu(menuVars)
 end
 function infoTab()
     imgui.SeparatorText("Welcome to plumoguSV!")
-    imgui.TextWrapped("This plugin is your one-stop shop for all of \nyour SV needs. Using it is quick and easy:")
+    imgui.TextWrapped("An Austree build")
     AddPadding()
-    imgui.BulletText("Choose an SV tool in the Create tab.")
-    imgui.BulletText("Adjust the tool's settings to your liking.")
-    imgui.BulletText("Select notes to use the tool at.")
-    imgui.BulletText(table.concat({"Press the '", globalVars.hotkeyList[hotkeys_enum.exec_primary], "' hotkey."}))
+    imgui.SeparatorText("Common hotkeys:")
+	imgui.TextWrapped("Placing")
+	imgui.BulletText("T | Place SV")
+	imgui.BulletText("Shift-T | Place SSF")
+	imgui.TextWrapped("Input Editing")
+	imgui.BulletText("S | Swap Input")
+	imgui.BulletText("N | Negate Input")
+	AddPadding()
+    imgui.SeparatorText("Some cool buttons")
+	imgui.TextWrapped("click")	
+	imgui.BulletText("click")
     AddPadding()
-    imgui.SeparatorText("Special thanks to:")
-    AddPadding()
-    imgui.BulletText("kloi34, for being the original dev.")
-    imgui.BulletText("kusa, for some handy widgets.")
-    imgui.BulletText("7xbi + nethen for some useful PRs.")
-    imgui.BulletText("Emik + William for plugin help.")
-    imgui.BulletText("ESV members for constant support.")
-    AddPadding()
-    AddPadding()
-    if (imgui.Button("Edit Settings", HALF_ACTION_BUTTON_SIZE)) then
+    if (imgui.Button("Settings", HALF_ACTION_BUTTON_SIZE)) then
         state.SetValue("windows.showSettingsWindow", not state.GetValue("windows.showSettingsWindow"))
         local coordinatesToCenter = game.window.getCenter() - vector.New(216.5, 200)
         imgui.SetWindowPos("plumoguSV Settings", coordinatesToCenter)
     end
-    HoverToolTip("Edit various functions of the plugin, such as the appearance or internal calculations.")
+    HoverToolTip("Edit various functions of the plugin.")
     KeepSameLine()
-    if (imgui.Button("See Patch Notes", HALF_ACTION_BUTTON_SIZE)) then
+    if (imgui.Button("Patch Notes", HALF_ACTION_BUTTON_SIZE)) then
         state.SetValue("windows.showPatchNotesWindow", not state.GetValue("windows.showPatchNotesWindow"))
         local coordinatesToCenter = game.window.getCenter() - vector.New(300, 250)
         imgui.SetWindowPos("plumoguSV Patch Notes", coordinatesToCenter)
     end
-    HoverToolTip("Keep up with the progress of plumoguSV, and see what the newest updates have in store for you.")
-    if (imgui.Button("Get Map Stats", HALF_ACTION_BUTTON_SIZE)) then
+    if (imgui.Button("Statistics", HALF_ACTION_BUTTON_SIZE)) then
         getMapStats()
     end
-    HoverToolTip("A quick and easy way to view SV/SSF counts and some other minute pieces of data.")
+	HoverToolTip("Some general stats about your map.")
     KeepSameLine()
-    if (imgui.Button("View Tutorials", HALF_ACTION_BUTTON_SIZE)) then
+    if (imgui.Button("Tutorial Menu", HALF_ACTION_BUTTON_SIZE)) then
         state.SetValue("windows.showTutorialWindow", not state.GetValue("windows.showTutorialWindow"))
         local coordinatesToCenter = game.window.getCenter() - vector.New(300, 250)
         imgui.SetWindowPos("plumoguSV Tutorial Menu", coordinatesToCenter)
     end
-    HoverToolTip("New to SV? View interactive tutorials that will help you navigate the plugin for your first time.")
+    HoverToolTip("New to SV?")
 end
 function showPatchNotesWindow()
     startNextWindowNotCollapsed("plumoguSV Patch Notes")
@@ -10714,8 +10704,8 @@ function saveSettingPropertiesButton(settingVars, label)
     loadDefaultProperties(globalVars.defaultProperties)
     write(globalVars)
     print("i!",
-        'Default setting properties for submenu "' ..
-        label .. '" have been set. Changes will be shown on the next plugin refresh.')
+        'Default submenu setting properties"' ..
+        label .. '" have been set. Changes will shown next plugin refresh.')
 end
 function saveMenuPropertiesButton(menuVars, label)
     local saveButtonClicked = imgui.Button("Save##menu" .. label)
@@ -10728,8 +10718,8 @@ function saveMenuPropertiesButton(menuVars, label)
     loadDefaultProperties(globalVars.defaultProperties)
     write(globalVars)
     print("i!",
-        'Default menu properties for menu "' ..
-        label .. '" have been set. Changes will be shown on the next plugin refresh.')
+        'Default menu properties "' ..
+        label .. '" have been set. Changes will shown next plugin refresh.')
 end
 function showDefaultPropertiesSettings()
     local standardFnList = {
@@ -11669,7 +11659,6 @@ function renderMeasureDataWidget()
         widgetVars.tgName = state.SelectedScrollGroupId
     end
     imgui.BeginTooltip()
-    imgui.Text("Measure Info:")
     imgui.Text(table.concat({"NSV Distance = ", widgetVars.nsvDistance, " ms"}))
     imgui.Text(table.concat({"SV Distance = ", widgetVars.roundedSVDistance, " msx"}))
     imgui.Text(table.concat({"Avg SV = ", widgetVars.roundedAvgSV, "x"}))
@@ -11681,7 +11670,6 @@ end
 function renderNoteDataWidget()
     if (#state.SelectedHitObjects ~= 1) then return end
     imgui.BeginTooltip()
-    imgui.Text("Note Info:")
     local selectedNote = state.SelectedHitObjects[1]
     imgui.Text(table.concat({"StartTime = ", selectedNote.StartTime, " ms"}))
     local noteIsNotLN = selectedNote.EndTime == 0
@@ -12916,7 +12904,7 @@ function printLegacyLNMessage()
     if (not globalVars.printLegacyLNMessage or state.GetValue("disablePrintLegacyLNMessage")) then return end
     if (not checkNotesForLNs(state.SelectedHitObjects) or map.LegacyLNRendering) then return end
     print("w!",
-        'Using any sort of displacements with LNs while Legacy LN rendering is highly discouraged. Consider turning on Legacy LN Rendering in the F1 menu. You can permanently disable this message in the plumoguSV settings.')
+        'Consider turning on Legacy LN Rendering.')
     state.SetValue("disablePrintLegacyLNMessage", true)
 end
 ---Alias for [`utils.CreateScrollVelocity`](lua://utils.CreateScrollVelocity).
@@ -13642,7 +13630,7 @@ function awake()
     if (not tempGlobalVars) then
         write(globalVars) -- First time launching plugin
         print("w!",
-            'This seems to be your first time using plumoguSV. If you need any help, please press the button labelled "View Tutorials" in the "Info" tab.')
+            'Need help? Press "View Tutorials" in the "Info" tab.')
         setPresets({})
     else
         setGlobalVars(tempGlobalVars)
@@ -13655,13 +13643,8 @@ function awake()
     setPluginAppearance()
     state.SelectedScrollGroupId = "$Default" or map.GetTimingGroupIds()[1]
     if (not truthy(map.TimingPoints)) then
-        print("e!", "Please place a timing point before attempting to use plumoguSV.")
     end
     if (state.Scale ~= 1) then
-        local printedScale = math.round(state.Scale * 100)
-        print("e!",
-            "Your ImGui scale is set to " ..
-            printedScale .. "% instead of 100%. For visual purposes, please set it back to 100%.")
     end
     clock.prevTime = state.UnixTime
     game.keyCount = map.GetKeyCount()
