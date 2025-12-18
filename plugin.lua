@@ -8443,7 +8443,7 @@ end
 EDIT_SV_TOOLS = {
     "Add Teleport",
     "Change Groups",
-    "Duplicate",
+    "Duplicate Area",
     "Convert SV/SSF",
     "Copy & Paste",
     "Direct SV",
@@ -8468,7 +8468,7 @@ function editSVTab()
     local toolName = EDIT_SV_TOOLS[globalVars.editToolIndex]
     if toolName == "Add Teleport" then addTeleportMenu() end
     if toolName == "Change Groups" then changeGroupsMenu() end
-    if toolName == "Duplicate" then completeDuplicateMenu() end
+    if toolName == "Duplicate Area" then completeDuplicateMenu() end
     if toolName == "Convert SV/SSF" then convertSVSSFMenu() end
     if toolName == "Copy & Paste" then copyNPasteMenu() end
     if toolName == "Direct SV" then directSVMenu() end
@@ -10963,23 +10963,23 @@ function showDefaultPropertiesSettings()
 end
 function showGeneralSettings()
     GlobalCheckbox("performanceMode", "Enable Performance Mode",
-        "Disables some visual enhancement to boost performance.")
+        "Disables most visuals to inhance performance.")
     GlobalCheckbox("advancedMode", "Enable Advanced Mode",
-        "Advanced mode enables a few features that simplify SV creation, at the cost of making the plugin more cluttered.")
+        "Enables a few features that simplify SV creation, at the cost of making it more cluttered.")
     AddSeparator()
     chooseUpscroll()
     AddSeparator()
     GlobalCheckbox("dontReplaceSV", "Don't Replace Existing SVs",
-        "Self-explanatory, but applies only to base SVs made with Standard, Special, or Still. Highly recommended to keep this setting disabled.")
+        "Applies only to SVs made with Standard, Special, or Still.")
     chooseStepSize()
     GlobalCheckbox("dontPrintCreation", "Don't Print SV Creation Messages",
         'Disables printing "Created __ SVs" messages.')
     GlobalCheckbox("equalizeLinear", "Equalize Linear SV",
-        "Forces the standard > linear option to have an average sv of 0 if the start and end SVs are equal. For beginners, this should be enabled.")
+        "Forces Linear options to exclude SV Points when averaging SV. If you're a beginner, it's recommended to turn this on .")
     GlobalCheckbox("comboizeSelect", "Select Using Already Selected Notes",
-        "Changes the behavior of the SELECT tab to select notes that are already selected, instead of all notes between the start/end selection.")
+        "Changes the behavior of the Select tab: Making it only consider the selected notes, instead of also including the notes in-between.")
     GlobalCheckbox("printLegacyLNMessage", "Print Legacy LN Recommendation",
-        "When true, prints a warning to enable legacy LN when the following conditions are met:\n1. Legacy LN Rendering is currently turned off.\n2: When placing stills, or using certain features that can displace, such as flicker, displace note, and displace view.")
+        "Prints a warning when these are met:\n1. Legacy LN Rendering is turned off.\n2: Using certain features that can displace the holds' ends.\nto turn legacy LNs on.")
 end
 function chooseUpscroll()
     local oldUpscroll = globalVars.upscroll
@@ -10994,7 +10994,7 @@ function chooseStepSize()
     local oldStepSize = globalVars.stepSize
     local _, tempStepSize = imgui.InputFloat("Exponential Intensity Step Size", oldStepSize, 0, 0, "%.0f%%")
     HoverToolTip(
-        "Changes what the exponential intensity slider will round the nearest to. Recommended to keep this as a factor of 100 (1, 2, 5, 10, etc).")
+        "Changes what the exponential slider will round the nearest to.")
     globalVars.stepSize = math.clamp(tempStepSize, 1, 100)
     imgui.PopItemWidth()
     if (oldStepSize ~= globalVars.stepSize) then
@@ -11166,23 +11166,23 @@ function renderMemeButtons()
 end
 function showWindowSettings()
     GlobalCheckbox("hideSVInfo", "Hide SV Info Window",
-        "Disables the window that shows note distances when placing Standard, Special, or Still SVs.")
+        "The window that shows graphs and info about the SVs.")
     if (globalVars.performanceMode) then
         imgui.TextColored(color.vctr.red,
-            "Performance mode is currently enabled.\nPlease disable it to access widgets and windows.")
+            "Performance mode is currently enabled.")
         imgui.BeginDisabled()
     end
     if (globalVars.hideSVInfo) then imgui.BeginDisabled() end
     GlobalCheckbox("showSVInfoVisualizer", "Show SV Info Visualizer",
-        "Enables a visualizer behind the SV info window that shows the general movement of the notes.")
+        "A visualizer placed behind the SV info window. Which displays the movement of the notes.")
     if (globalVars.hideSVInfo) then imgui.EndDisabled() end
     GlobalCheckbox("showVibratoWidget", "Separate Vibrato Into New Window",
-        "For those who are used to having Vibrato as a separate plugin, this option makes a new, independent window with vibrato only.")
+        "Makes a new, independent window for only vibrato SVs.")
     AddSeparator()
     GlobalCheckbox("showNoteDataWidget", "Show Note Data Of Selection",
         "If one note is selected, shows simple data about that note.")
     GlobalCheckbox("showMeasureDataWidget", "Show Measure Data Of Selection",
-        "If two notes are selected, shows measure data within the selected region.")
+        "If two notes are selected, shows measure data about that region.")
     if (globalVars.performanceMode) then
         imgui.EndDisabled()
     end
@@ -11708,12 +11708,11 @@ function chooseInteractiveBezier(settingVars, optionalLabel)
     if (not settingVars.manualMode) then
         imgui.BeginChild("Bezier Interactive Window" .. optionalLabel, vctr2(150), 67, 31)
         local red = 4278190335
-        local blue = 4294901760
+        local aqua = 4294967040
         pos1.y = 150 - pos1.y
         pos2.y = 150 - pos2.y
-        local pointList = { { pos = pos1, col = red, size = 5 }, { pos = pos2, col = blue, size = 5 } }
-        local ctx = renderGraph("Bezier Interactive Window" .. optionalLabel, vctr2(150), pointList, settingVars
-            .freeMode)
+        local pointList = { { pos = pos1, col = red, size = 5 }, { pos = pos2, col = aqua, size = 5 } }
+        local ctx = renderGraph("Bezier Interactive Window" .. optionalLabel, vctr2(150), pointList, settingVars.freeMode)
         local topLeft = imgui.GetWindowPos()
         local dim = imgui.GetWindowSize()
         if (not settingVars.freeMode) then
@@ -11742,27 +11741,23 @@ function chooseInteractiveBezier(settingVars, optionalLabel)
         normalizedPos1 = pos1 / vctr2(150)
         normalizedPos2 = pos2 / vctr2(150)
         imgui.Text("\n         Point 1:\n      (" ..
-            string.format("%.2f", normalizedPos1.x) ..
-            table.concat({", ", string.format("%.2f", normalizedPos1.y), ")\n         Point 2:\n      ("}) ..
+            string.format("%.2f", normalizedPos1.x) .. table.concat({", ", string.format("%.2f", normalizedPos1.y), ")\n         Point 2:\n      ("}) ..
             string.format("%.2f", normalizedPos2.x) .. table.concat({", ", string.format("%.2f", normalizedPos2.y), ")\n"}))
         imgui.SetCursorPosY(80)
         imgui.SetCursorPosX(5)
         _, settingVars.freeMode = imgui.Checkbox("Free Mode##Bezier", settingVars.freeMode)
-        HoverToolTip(
-            "Enable this to allow the bezier control points to move outside the boundary. WARNING: ONCE MOVED OUTSIDE, THEY CANNOT BE MOVED BACK IN. DISABLE AND RE-ENABLE FREE MODE TO ALLOW THEM TO BE INTERACTED WITH.")
+        HoverToolTip("Enable: Allows you to move the bezier points off the display. If moved off the display, you will not be able to interact with them anymore. Turn this off to place them back in the display.")
         imgui.SetCursorPosX(5)
         _, settingVars.manualMode = imgui.Checkbox("Manual Edit##Bezier", settingVars.manualMode)
-        HoverToolTip(
-            "Enable this to directly edit the bezier points.")
+        HoverToolTip("Enable: Directly edit the bezier points.")
         imgui.EndChild()
     else
-        imgui.SetNextItemWidth(DEFAULT_WIDGET_WIDTH)
         _, normalizedPos1 = imgui.SliderFloat2("Point 1", pos1 / 150, 0, 1)
         imgui.SetNextItemWidth(DEFAULT_WIDGET_WIDTH)
         _, normalizedPos2 = imgui.SliderFloat2("Point 2", pos2 / 150, 0, 1)
+		imgui.SetNextItemWidth(DEFAULT_WIDGET_WIDTH)
         _, settingVars.manualMode = imgui.Checkbox("Manual Edit##Bezier", settingVars.manualMode)
-        HoverToolTip(
-            "Disable this to edit the bezier points with an interactive graph.")
+        HoverToolTip("Disable: Edit the bezier points with a display.")
     end
     local oldP1 = settingVars.p1
     local oldP2 = settingVars.p2
@@ -12254,7 +12249,7 @@ function chooseStillType(menuVars)
         imgui.PopItemWidth()
     end
     imgui.PushItemWidth(DEFAULT_WIDGET_WIDTH * 0.4)
-    menuVars.stillTypeIndex = Combo("Displacement", STILL_TYPES, menuVars.stillTypeIndex, {}, {}, tooltipList)
+    menuVars.stillTypeIndex = Combo("Displacement", STILL_TYPES, menuVars.stillTypeIndex, {}, {})
     HoverToolTip(tooltipList[menuVars.stillTypeIndex])
     if dontChooseDistance then
         imgui.Unindent(indentWidth)
@@ -13575,7 +13570,6 @@ function draw()
     if (not state.CurrentTimingPoint) then return end
     local performanceMode = globalVars.performanceMode
     PLUGIN_NAME = "plumoguSV-dev"
-    state.IsWindowHovered = imgui.IsWindowHovered()
     startNextWindowNotCollapsed(PLUGIN_NAME)
     imgui.SetNextWindowSizeConstraints(vctr2(0), vector.Max(table.vectorize2(state.WindowSize) / 2, vctr2(600)))
     imgui.Begin(PLUGIN_NAME, imgui_window_flags.AlwaysAutoResize)
@@ -13627,12 +13621,7 @@ end
 function awake()
     loadup = {} -- later inserted to via setStyleVars.lua
     local tempGlobalVars = read()
-    if (not tempGlobalVars) then
-        write(globalVars) -- First time launching plugin
-        print("w!",
-            'Need help? Press "View Tutorials" in the "Info" tab.')
-        setPresets({})
-    else
+    if (tempGlobalVars) then
         setGlobalVars(tempGlobalVars)
         loadDefaultProperties(tempGlobalVars.defaultProperties)
         setPresets(tempGlobalVars.presets or {})
@@ -13642,64 +13631,56 @@ function awake()
     listenForTimingGroupCount()
     setPluginAppearance()
     state.SelectedScrollGroupId = "$Default" or map.GetTimingGroupIds()[1]
-    if (not truthy(map.TimingPoints)) then
-    end
-    if (state.Scale ~= 1) then
-    end
     clock.prevTime = state.UnixTime
     game.keyCount = map.GetKeyCount()
 end
 function draw()
-    if (not state.CurrentTimingPoint) then return end
-    local performanceMode = globalVars.performanceMode
-    PLUGIN_NAME = "plumoguSV-dev"
-    state.IsWindowHovered = imgui.IsWindowHovered()
-    startNextWindowNotCollapsed(PLUGIN_NAME)
-    imgui.SetNextWindowSizeConstraints(vctr2(0), vector.Max(table.vectorize2(state.WindowSize) / 2, vctr2(600)))
-    imgui.Begin(PLUGIN_NAME, imgui_window_flags.AlwaysAutoResize)
-    if (not performanceMode) then
-        renderBackground()
-        drawCapybaraParent()
-        drawCursorTrail()
-        pulseController()
-        checkForGlobalHotkeys()
-        setPluginAppearance()
-    end
+local performanceMode = globalVars.performanceMode
+PLUGIN_NAME = "plumoguSV-dev"
+startNextWindowNotCollapsed(PLUGIN_NAME)
+imgui.SetNextWindowSizeConstraints(vctr2(0), vector.Max(table.vectorize2(state.WindowSize) / 2, vctr2(600)))
+imgui.Begin(PLUGIN_NAME, imgui_window_flags.AlwaysAutoResize)
+if (not performanceMode) then
+    renderBackground()
+    drawCapybaraParent()
+    drawCursorTrail()
+    pulseController()
+    checkForGlobalHotkeys()
+    setPluginAppearance()
+end
+imgui.PushItemWidth(DEFAULT_WIDGET_WIDTH)
+imgui.BeginTabBar("SV tabs")
+for i = 1, #TAB_MENUS do
+    createMenuTab(TAB_MENUS[i])
+end
+imgui.EndTabBar()
+if (globalVars.showVibratoWidget) then
+    imgui.Begin("plumoguSV-vibrato", imgui_window_flags.AlwaysAutoResize)
     imgui.PushItemWidth(DEFAULT_WIDGET_WIDTH)
-    imgui.BeginTabBar("SV tabs")
-    for i = 1, #TAB_MENUS do
-        createMenuTab(TAB_MENUS[i])
-    end
-    imgui.EndTabBar()
-    if (not performanceMode) then
-        if (globalVars.showVibratoWidget) then
-            imgui.Begin("plumoguSV-vibrato", imgui_window_flags.AlwaysAutoResize)
-            imgui.PushItemWidth(DEFAULT_WIDGET_WIDTH)
-            placeVibratoSVMenu(true)
-            imgui.End()
-        end
-        if (globalVars.showNoteDataWidget) then
-            renderNoteDataWidget()
-        end
-        if (globalVars.showMeasureDataWidget) then
-            renderMeasureDataWidget()
-        end
-    end
-    if (state.GetValue("windows.showTutorialWindow")) then
-        showTutorialWindow()
-    end
-    if (state.GetValue("windows.showSettingsWindow")) then
-        showPluginSettingsWindow()
-    end
-    if (state.GetValue("windows.showPatchNotesWindow")) then
-        showPatchNotesWindow()
-    end
+    placeVibratoSVMenu(true)
     imgui.End()
-    logoThread()
-    state.SetValue("boolean.changeOccurred", false)
-    local groups = state.GetValue("tgList")
-    if (state.SelectedScrollGroupId ~= groups[globalVars.scrollGroupIndex]) then
-        globalVars.scrollGroupIndex = table.indexOf(groups, state.SelectedScrollGroupId)
-    end
-    tempClockCount = 0
+end
+if (globalVars.showNoteDataWidget) then
+    renderNoteDataWidget()
+end
+if (globalVars.showMeasureDataWidget) then
+    renderMeasureDataWidget()
+end
+if (state.GetValue("windows.showTutorialWindow")) then
+    showTutorialWindow()
+end
+if (state.GetValue("windows.showSettingsWindow")) then
+    showPluginSettingsWindow()
+end
+if (state.GetValue("windows.showPatchNotesWindow")) then
+    showPatchNotesWindow()
+end
+imgui.End()
+logoThread()
+state.SetValue("boolean.changeOccurred", false)
+local groups = state.GetValue("tgList")
+if (state.SelectedScrollGroupId ~= groups[globalVars.scrollGroupIndex]) then
+    globalVars.scrollGroupIndex = table.indexOf(groups, state.SelectedScrollGroupId)
+end
+tempClockCount = 0
 end
