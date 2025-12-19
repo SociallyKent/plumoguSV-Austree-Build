@@ -12,5 +12,5 @@ Planned Future Updates:
 
 ;
 
-On the back end it's just editing code stuff. Fixing bugs. Making locals more consistantly the same, for eaiser searchering. Seeing about reducing size whereever possable.
+On the back end it's just editing code stuff. Fixing bugs. Making locals more consistant with each other, for eaiser searchering. Seeing about reducing size whereever possable.
 Currently, the select tab will hover a tooltip while it's not seleted, unsure about removing it or keeping it. With the Create tab I want people to explore and have a discription if they are lost, but not sure if I should keepe it consistant on the Select tab. Or to keep it.
