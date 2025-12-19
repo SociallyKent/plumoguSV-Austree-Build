@@ -9,6 +9,7 @@ Apologies if anything is poorly worded, English is current my primary language t
 Planned Future Updates:
 - Fixing the Frames Setup bug
 - Completely revamp the Tutorial menu
+- Adding some more appearance options
 
 ;
 
