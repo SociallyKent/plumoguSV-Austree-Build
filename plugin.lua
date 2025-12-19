@@ -381,16 +381,14 @@ end
 function game.uniqueNoteOffsetsBetweenSelected(includeLN)
     local selectedNoteOffsets = game.uniqueSelectedNoteOffsets()
     if (not selectedNoteOffsets) then
-        toggleablePrint("e!",
-            "Not enough notes in the current selection.")
+        toggleablePrint("e!", "There are not enough notes in the current selection.")
         return {}
     end
     local startOffset = selectedNoteOffsets[1]
     local endOffset = selectedNoteOffsets[#selectedNoteOffsets]
     local offsets = game.uniqueNoteOffsetsBetween(startOffset, endOffset, includeLN)
     if (#offsets < 2) then
-        toggleablePrint("e!",
-            "Not enough notes in the current selection..")
+        toggleablePrint("e!", "There are not enough notes in the current selection..")
         return {}
     end
     return offsets
@@ -413,16 +411,14 @@ end
 function game.uniqueNotesBetweenSelected()
     local selectedNoteOffsets = game.uniqueSelectedNoteOffsets()
     if (not selectedNoteOffsets) then
-        toggleablePrint("e!",
-            "Not enough notes in the current selection.")
+        toggleablePrint("e!", "There are not enough notes in the current selection.")
         return {}
     end
     local startOffset = selectedNoteOffsets[1]
     local endOffset = selectedNoteOffsets[#selectedNoteOffsets]
     local hos = game.getNotesBetweenOffsets(startOffset, endOffset)
     if (#hos < 2) then
-        toggleablePrint("e!",
-            "Not enough notes in the current selection.")
+        toggleablePrint("e!", "There are not enough notes in the current selection.")
         return {}
     end
     return hos
@@ -2324,7 +2320,7 @@ function automateCopySVs(settingVars)
     local endOffset = offsets[#offsets]
     local svs = game.getSVsBetweenOffsets(startOffset, endOffset)
     if (not truthy(svs)) then
-        toggleablePrint("w!", "No SVs found.")
+        toggleablePrint("w!", "No SVs to copy.")
         return
     end
     local firstSVTime = svs[1].StartTime
@@ -2337,8 +2333,7 @@ function automateCopySVs(settingVars)
         table.insert(settingVars.copiedSVs, copiedSV)
     end
     if (#settingVars.copiedSVs > 0) then
-        toggleablePrint("s!",
-            "Copied " .. #settingVars.copiedSVs .. pluralize(" SV.", #settingVars.copiedSVs, -2))
+        toggleablePrint("s!", "Copied " .. #settingVars.copiedSVs .. pluralize(" SV.", #settingVars.copiedSVs, -2))
     end
     if (settingVars.deleteCopiedSVs) then actions.RemoveScrollVelocityBatch(svs) end
 end
@@ -3824,7 +3819,6 @@ function scaleDisplaceSVs(menuVars)
         if scaleType == "Average SV" then
             local targetDistance = menuVars.avgSV * (note2Offset - note1Offset)
             scalingDistance = targetDistance - currentDistance
-            print(scalingDistance)
         elseif scaleType == "Absolute Distance" then
             scalingDistance = menuVars.distance - currentDistance
         elseif scaleType == "Relative Ratio" then
@@ -3971,22 +3965,16 @@ function changeNoteLockMode()
     local mode = state.GetValue("noteLockMode") or 0
     mode = (mode + 1) % 4
     if (mode == 0) then
-        print("s", "Notes have been unlocked.")
+        print("s", "Notes are now Unlocked.")
     end
     if (mode == 1) then
-        print("e",
-            "Notes have been locked." ..
-            globalVars.hotkeyList[hotkeys_enum.toggle_note_lock] .. ".")
+        print("e", "Notes are now Locked.")
     end
     if (mode == 2) then
-        print("w",
-            "Notes can not be placed. " ..
-            globalVars.hotkeyList[hotkeys_enum.toggle_note_lock] .. ".")
+        print("w", "Notes are now Implacable. ")
     end
     if (mode == 3) then
-        print("w",
-            "Notes can no longer be moved, only placed and deleted. To change the lock mode, press " ..
-            globalVars.hotkeyList[hotkeys_enum.toggle_note_lock] .. ".")
+        print("w", "Notes are now Immovable.")
     end
     state.SetValue("noteLockMode", mode)
 end
@@ -4064,13 +4052,9 @@ end
 function toggleUseEndOffsets()
     globalVars.useEndTimeOffsets = not globalVars.useEndTimeOffsets
     if (globalVars.useEndTimeOffsets) then
-        print("s",
-            "LN ends are now their own offsets. " ..
-            globalVars.hotkeyList[hotkeys_enum.toggle_end_offset] .. ".")
+        print("s","LN ends are their own offsets. ")
     else
-        print("e",
-            "LN ends are now their own offsets. " ..
-            globalVars.hotkeyList[hotkeys_enum.toggle_end_offset] .. ".")
+        print("e","LN ends are not their own offsets. ")
     end
     write(globalVars)
 end
@@ -4085,13 +4069,9 @@ function getMapStats()
         svSum = svSum + #map.ScrollVelocities
         ssfSum = ssfSum + #map.ScrollSpeedFactors
     end
-    print("s!",
-        math.round(svSum * 1000 / map.TrackLength, 2) ..
-        table.concat({" SVs per second, ", math.round(ssfSum * 1000 / map.TrackLength, 2), " SSFs per second."}))
+    print("s!", math.round(svSum * 1000 / map.TrackLength, 2) .. table.concat({" SVs per second, ", math.round(ssfSum * 1000 / map.TrackLength, 2), " SSFs per second."}))
     print("s!", table.concat({"", #map.TimingPoints, pluralize(" timing point.", #map.TimingPoints, -2)}))
-    print("s!",
-        svSum .. table.concat({" SVs, ", ssfSum, " SSFs across "}) .. #tgList .. pluralize(" timing group.", #tgList, -2))
-    state.SelectedScrollGroupId = currentTG
+    print("s!", svSum .. table.concat({" SVs, ", ssfSum, " SSFs across "}) .. #tgList .. pluralize(" timing group.", #tgList, -2)) state.SelectedScrollGroupId = currentTG
 end
 function selectAlternating(menuVars)
     local offsets = game.uniqueSelectedNoteOffsets()
@@ -4626,11 +4606,16 @@ function drawCapybara2()
     o.AddTriangleFilled(p94, p95, p96, color10)
     o.AddTriangleFilled(p97, p98, p99, color10)
 end
+
 function drawCapybara312()
     if not globalVars.drawCapybara312 then return end
     local o = imgui.GetForegroundDrawList()
-    local rgbColors = getCurrentRGBColors(globalVars.rgbPeriod)
-    local outlineColor = color.rgbaToUint(rgbColors.red, rgbColors.green, rgbColors.blue, 255)
+	local currentRGB = getCurrentRGBColors(globalVars.rgbPeriod)
+    local rgbColors = { currentRGB.red, currentRGB.green, currentRGB.blue, 0.8 }
+	local redRounded = math.round(255 * currentRGB.red, 0)
+    local greenRounded = math.round(255 * currentRGB.green, 0)
+    local blueRounded = math.round(255 * currentRGB.blue, 0)
+    local outlineColor = color.rgbaToUint(redRounded, greenRounded, blueRounded, 255)
     local p1 = vector.New(42, 32)
     local p2 = vector.New(100, 78)
     local p3 = vector.New(141, 32)
@@ -7360,7 +7345,7 @@ function chooseCreateTool()
     local tooltipList = {
         "",
         "Miscellaneous effects.",
-        "Still shapes keep notes normal distance/spacing apart.",
+        "Still keeps notes a distance/spacing apart.",
         "Make notes vibrate or appear to duplicate."
     }
     imgui.AlignTextToFramePadding()
@@ -7410,8 +7395,7 @@ function renderPresetMenu(menuLabel, menuVars, settingVars)
     if (imgui.Button("Import##CustomPreset")) then
         local parsedTable = table.parse(importCustomPreset)
         if (table.includes(table.property(globalVars.presets, "name"), parsedTable.name)) then
-            print("e!",
-                "A preset with this name already exists.")
+            print("e!", "A preset with this name already exists.")
         else
             table.insert(globalVars.presets, parsedTable)
             importCustomPreset = ""
@@ -8615,7 +8599,6 @@ function splitSettingsMenu(menuVars)
     end
 end
 function swapNotesMenu()
-    imgui.TextWrapped("Doesn't swap note temporal positions; instead, swaps their spatial positions with two displaces.")
     simpleActionMenu("Swap selected notes using SVs", 2, swapNoteSVs, nil)
 end
 function verticalShiftMenu()
@@ -8638,6 +8621,8 @@ function infoTab()
 	imgui.TextWrapped("Input Editing")
 	imgui.BulletText("S | Swap Input")
 	imgui.BulletText("N | Negate Input")
+	imgui.TextWrapped("Timing Group")
+	imgui.BulletText("M | Switch")
 	AddPadding()
     imgui.SeparatorText("Some cool buttons")
 	imgui.TextWrapped("click")	
@@ -10373,9 +10358,9 @@ function chooseSelectTool()
         "Skip over notes then select one, and repeat.",
         "Jump to a bookmark.",
         "Select all notes with a certain snap color.",
-        "Select all notes within a certain timing group.",
+        "Select all notes within a timing group.",
         "Select all notes with a certain chord size.",
-        "Select rice/ln notes."
+        "Select rice/LN notes."
     }
     imgui.AlignTextToFramePadding()
     imgui.Text("Current Type:")
@@ -10412,9 +10397,9 @@ function showAdvancedSettings()
     GlobalCheckbox("hideAutomatic", "Hide Automatically Placed TGs",
         'Timing groups placed by the "Automatic" feature will not be shown in the plumoguSV timing group selector.')
     GlobalCheckbox("useEndTimeOffsets", "Use LN Ends As Offsets",
-        "When true, LN ends will be considered as their own offsets, meaning you don't have to select two notes. All functions which rely on getting note offsets will now additionally include LN ends as their own offsets.")
+        "LN ends will be considered as their own offsets. All functions which rely on note offsets will now additionally include LN ends as their own offsets.")
     GlobalCheckbox("ignoreNotesOutsideTg", "Ignore Notes Not In Current Timing Group",
-        "Notes that are in a timing group outside of the current one will be ignored by stills, selection checks, etc.")
+        "Notes that are not in the current timing group will be ignored by stills, selection checks, etc.")
     chooseMaxDisplacementMultiplierExponent()
 end
 function chooseMaxDisplacementMultiplierExponent()
@@ -10703,9 +10688,7 @@ function saveSettingPropertiesButton(settingVars, label)
     globalVars.defaultProperties.settings[label] = settingVars
     loadDefaultProperties(globalVars.defaultProperties)
     write(globalVars)
-    print("i!",
-        'Default submenu setting properties"' ..
-        label .. '" have been set. Changes will shown next plugin refresh.')
+    print("i!", 'Default submenu setting properties"' .. label .. '" have been set. Changes will be shown next plugin refresh.')
 end
 function saveMenuPropertiesButton(menuVars, label)
     local saveButtonClicked = imgui.Button("Save##menu" .. label)
@@ -10717,9 +10700,7 @@ function saveMenuPropertiesButton(menuVars, label)
     globalVars.defaultProperties.menu[label] = menuVars
     loadDefaultProperties(globalVars.defaultProperties)
     write(globalVars)
-    print("i!",
-        'Default menu properties "' ..
-        label .. '" have been set. Changes will shown next plugin refresh.')
+    print("i!", 'Default menu properties "' .. label .. '" have been set. Changes will be shown next plugin refresh.')
 end
 function showDefaultPropertiesSettings()
     local standardFnList = {
@@ -11076,7 +11057,7 @@ function showPluginSettingsWindow()
     if (imgui.Button("Reset Settings")) then
         write({})
         globalVars = DEFAULT_GLOBAL_VARS
-        toggleablePrint("e!", "Settings have been reset.")
+        toggleablePrint("i!", "Settings have been reset.")
     end
     if (globalVars.advancedMode) then renderMemeButtons() end
     imgui.EndChild()
@@ -12898,8 +12879,7 @@ end
 function printLegacyLNMessage()
     if (not globalVars.printLegacyLNMessage or state.GetValue("disablePrintLegacyLNMessage")) then return end
     if (not checkNotesForLNs(state.SelectedHitObjects) or map.LegacyLNRendering) then return end
-    print("w!",
-        'Consider turning on Legacy LN Rendering.')
+    print("w!", 'Legacy LN Rendering is off.')
     state.SetValue("disablePrintLegacyLNMessage", true)
 end
 ---Alias for [`utils.CreateScrollVelocity`](lua://utils.CreateScrollVelocity).
