@@ -11,6 +11,7 @@ Planned Future Updates:
 - Completely revamp the Tutorial menu
 - Adding some more appearance options
 - Change the 'Common  hotkeys:' from base hotkey inputs, to showing your hotkey inputs
+- Adding More CapyBaras!! (and others)
 
 ;
 
