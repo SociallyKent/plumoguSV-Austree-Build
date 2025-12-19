@@ -11,6 +11,8 @@ Planned Future Updates:
 - Completely revamp the Tutorial menu
 - Adding some more appearance options
 - Change the 'Common  hotkeys:' from base hotkey inputs, to showing your hotkey inputs
+- Give Lint Map the option to search only in selection
+- Giving Lint Map ability delete items that are []difference, rather than only the same
 - Adding More CapyBaras!! (and others)
 
 ;
